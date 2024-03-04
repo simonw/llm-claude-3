@@ -24,4 +24,4 @@ CI = "https://github.com/simonw/llm-claude-3/actions"
 claude_3 = "llm_claude_3"
 
 [project.optional-dependencies]
-test = ["pytest", "pytest-recording]
+test = ["pytest", "pytest-recording"]
