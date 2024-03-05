@@ -5,11 +5,12 @@ import pytest
 @pytest.mark.vcr
 def test_prompt():
     model = llm.get_model("claude-3-opus")
-    model.key = "sk-..."
+    model.key = model.key or "sk-..."  # don't override existing key
     response = model.prompt("Two names for a pet pelican, be brief")
     assert str(response) == "1. Pelly\n2. Beaky"
-    assert response.response_json == {
-        "id": "msg_01QPXzRdFQ5sibaQezm3b8Dz",
+    response_dict = response.response_json
+    response_dict.pop("id") # differs between requests
+    assert response_dict == {
         "content": [{"text": "1. Pelly\n2. Beaky", "type": "text"}],
         "model": "claude-3-opus-20240229",
         "role": "assistant",
