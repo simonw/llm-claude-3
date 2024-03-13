@@ -27,6 +27,7 @@ Run prompts like this:
 ```bash
 llm -m claude-3-opus 'Fun facts about pelicans'
 llm -m claude-3-sonnet 'Fun facts about walruses'
+llm -m claude-3-haiku 'Fun facts about armadillos'
 ```
 
 ## Development

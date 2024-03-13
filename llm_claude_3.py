@@ -9,6 +9,7 @@ def register_models(register):
     # https://docs.anthropic.com/claude/docs/models-overview
     register(ClaudeMessages("claude-3-opus-20240229"), aliases=("claude-3-opus",))
     register(ClaudeMessages("claude-3-sonnet-20240229"), aliases=("claude-3-sonnet",))
+    register(ClaudeMessages("claude-3-haiku-20240307"), aliases=("claude-3-haiku",))
 
 
 class ClaudeOptions(llm.Options):
@@ -77,8 +78,7 @@ class ClaudeMessages(llm.Model):
     key_env_var = "ANTHROPIC_API_KEY"
     can_stream = True
 
-    class Options(ClaudeOptions):
-        ...
+    class Options(ClaudeOptions): ...
 
     def __init__(self, model_id):
         self.model_id = model_id
