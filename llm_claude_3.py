@@ -1,4 +1,5 @@
 from anthropic import Anthropic
+import base64
 import llm
 from pydantic import Field, field_validator, model_validator
 from typing import Optional, List
@@ -77,6 +78,7 @@ class ClaudeMessages(llm.Model):
     needs_key = "claude"
     key_env_var = "ANTHROPIC_API_KEY"
     can_stream = True
+    supports_images = True
 
     class Options(ClaudeOptions): ...
 
@@ -96,7 +98,23 @@ class ClaudeMessages(llm.Model):
                         {"role": "assistant", "content": response.text()},
                     ]
                 )
-        messages.append({"role": "user", "content": prompt.prompt})
+        if prompt.images:
+            message = {"role": "user", "content": []}
+            for image in prompt.images:
+                message["content"].append(
+                    {
+                        "type": "image",
+                        "source": {
+                            "type": "base64",
+                            "media_type": "image/jpeg",
+                            "data": base64.b64encode(image.read()).decode("utf-8"),
+                        },
+                    }
+                )
+                message["content"].append({"type": "text", "text": prompt.prompt})
+                messages.append(message)
+        else:
+            messages.append({"role": "user", "content": prompt.prompt})
         return messages
 
     def execute(self, prompt, stream, response, conversation):
