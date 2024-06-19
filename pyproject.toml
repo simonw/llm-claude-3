@@ -10,7 +10,6 @@ classifiers = [
 ]
 dependencies = [
     "llm",
-    "llm-claude",
     "anthropic>=0.17.0",
 ]
 
