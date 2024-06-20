@@ -17,5 +17,5 @@ def test_prompt():
         "stop_reason": "end_turn",
         "stop_sequence": None,
         "type": "message",
-        "usage": {"input_tokens": 17, "output_tokens": 1},
+        "usage": {"input_tokens": 17, "output_tokens": 15},
     }
