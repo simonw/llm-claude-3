@@ -16,7 +16,7 @@ def register_models(register):
 class ClaudeOptions(llm.Options):
     max_tokens: Optional[int] = Field(
         description="The maximum number of tokens to generate before stopping",
-        default=4_096,
+        default=None,
     )
 
     temperature: Optional[float] = Field(
@@ -106,8 +106,14 @@ class ClaudeMessages(llm.Model):
         kwargs = {
             "model": self.model_id,
             "messages": self.build_messages(prompt, conversation),
-            "max_tokens": prompt.options.max_tokens,
         }
+
+        # Set max_tokens based on the model
+        if self.model_id == "claude-3.5-sonnet-20240620":
+            kwargs["max_tokens"] = prompt.options.max_tokens or 8192
+        else:
+            kwargs["max_tokens"] = prompt.options.max_tokens or 4096
+
         if prompt.options.user_id:
             kwargs["metadata"] = {"user_id": prompt.options.user_id}
 
@@ -121,6 +127,11 @@ class ClaudeMessages(llm.Model):
 
         if prompt.system:
             kwargs["system"] = prompt.system
+
+        # Add the extra header for Claude 3.5 Sonnet
+        if self.model_id == "claude-3.5-sonnet-20240620":
+            kwargs["extra_headers"] = {"anthropic-beta": "max-tokens-3-5-sonnet-2024-07-15"}
+
 
         usage = None
         if stream:
