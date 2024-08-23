@@ -15,7 +15,7 @@ llm install llm-claude-3
 ```
 ## Usage
 
-First, set an API key for Claude 3:
+First, set [an API key](https://console.anthropic.com/settings/keys) for Claude 3:
 ```bash
 llm keys set claude
 # Paste key here
