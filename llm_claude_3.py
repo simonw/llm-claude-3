@@ -11,15 +11,7 @@ def register_models(register):
     register(ClaudeMessages("claude-3-sonnet-20240229"), aliases=("claude-3-sonnet",))
     register(ClaudeMessages("claude-3-haiku-20240307"), aliases=("claude-3-haiku",))
     register(
-        ClaudeMessages("claude-3-5-sonnet-20240620"), aliases=("claude-3.5-sonnet",)
-    )
-    register(
-        ClaudeMessagesLong(
-            "claude-3-5-sonnet-20240620-long",
-            claude_model_id="claude-3-5-sonnet-20240620",
-            extra_headers={"anthropic-beta": "max-tokens-3-5-sonnet-2024-07-15"},
-        ),
-        aliases=("claude-3.5-sonnet-long",),
+        ClaudeMessagesLong("claude-3-5-sonnet-20240620"), aliases=("claude-3.5-sonnet",)
     )
 
 
@@ -159,6 +151,3 @@ class ClaudeMessagesLong(ClaudeMessages):
             description="The maximum number of tokens to generate before stopping",
             default=4_096 * 2,
         )
-
-    def __str__(self):
-        return "Anthropic Messages Long: {}".format(self.model_id)
