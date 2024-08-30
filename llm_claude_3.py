@@ -14,7 +14,7 @@ def register_models(register):
         ClaudeMessages("claude-3-5-sonnet-20240620"), aliases=("claude-3.5-sonnet",)
     )
     register(
-        ClaudeMessages(
+        ClaudeMessagesLong(
             "claude-3-5-sonnet-20240620-long",
             claude_model_id="claude-3-5-sonnet-20240620",
             extra_headers={"anthropic-beta": "max-tokens-3-5-sonnet-2024-07-15"},
@@ -52,8 +52,9 @@ class ClaudeOptions(llm.Options):
     @field_validator("max_tokens")
     @classmethod
     def validate_max_tokens(cls, max_tokens):
-        if not (0 < max_tokens <= 4_096):
-            raise ValueError("max_tokens must be in range 1-4,096")
+        real_max = cls.model_fields["max_tokens"].default
+        if not (0 < max_tokens <= real_max):
+            raise ValueError("max_tokens must be in range 1-{}".format(real_max))
         return max_tokens
 
     @field_validator("temperature")
@@ -150,3 +151,14 @@ class ClaudeMessages(llm.Model):
 
     def __str__(self):
         return "Anthropic Messages: {}".format(self.model_id)
+
+
+class ClaudeMessagesLong(ClaudeMessages):
+    class Options(ClaudeOptions):
+        max_tokens: Optional[int] = Field(
+            description="The maximum number of tokens to generate before stopping",
+            default=4_096 * 2,
+        )
+
+    def __str__(self):
+        return "Anthropic Messages Long: {}".format(self.model_id)
