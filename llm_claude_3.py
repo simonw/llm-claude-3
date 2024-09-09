@@ -41,12 +41,22 @@ class ClaudeOptions(llm.Options):
         default=None,
     )
 
+    cache_prompt: Optional[bool] = Field(
+        description="Whether to cache the user prompt for future use",
+        default=False,
+    )
+
+    cache_system: Optional[bool] = Field(
+        description="Whether to cache the system prompt for future use",
+        default=False,
+    )
+
     @field_validator("max_tokens")
     @classmethod
     def validate_max_tokens(cls, max_tokens):
         real_max = cls.model_fields["max_tokens"].default
         if not (0 < max_tokens <= real_max):
-            raise ValueError("max_tokens must be in range 1-{}".format(real_max))
+            raise ValueError(f"max_tokens must be in range 1-{real_max}")
         return max_tokens
 
     @field_validator("temperature")
@@ -97,12 +107,27 @@ class ClaudeMessages(llm.Model):
                     [
                         {
                             "role": "user",
-                            "content": response.prompt.prompt,
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": response.prompt.prompt,
+                                    "cache_control": {"type": "ephemeral"} if prompt.options.cache_prompt else None
+                                }
+                            ],
                         },
                         {"role": "assistant", "content": response.text()},
                     ]
                 )
-        messages.append({"role": "user", "content": prompt.prompt})
+        messages.append({
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": prompt.prompt,
+                    "cache_control": {"type": "ephemeral"} if prompt.options.cache_prompt else None
+                }
+            ]
+        })
         return messages
 
     def execute(self, prompt, stream, response, conversation):
@@ -125,10 +150,19 @@ class ClaudeMessages(llm.Model):
             kwargs["top_k"] = prompt.options.top_k
 
         if prompt.system:
-            kwargs["system"] = prompt.system
+            kwargs["system"] = [
+                {
+                    "type": "text",
+                    "text": prompt.system,
+                    "cache_control": {"type": "ephemeral"} if prompt.options.cache_system else None
+                }
+            ]
 
         if self.extra_headers:
             kwargs["extra_headers"] = self.extra_headers
+
+        kwargs["extra_headers"] = kwargs.get("extra_headers", {})
+        kwargs["extra_headers"]["anthropic-beta"] = "prompt-caching-2024-07-31"
 
         if stream:
             with client.messages.stream(**kwargs) as stream:
@@ -142,7 +176,7 @@ class ClaudeMessages(llm.Model):
             response.response_json = completion.model_dump()
 
     def __str__(self):
-        return "Anthropic Messages: {}".format(self.model_id)
+        return f"Anthropic Messages: {self.model_id}"
 
 
 class ClaudeMessagesLong(ClaudeMessages):
