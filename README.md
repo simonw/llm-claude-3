@@ -31,6 +31,10 @@ llm -m claude-3-sonnet 'Fun facts about walruses'
 llm -m claude-3-haiku 'Fun facts about armadillos'
 ```
 
+## New prompt caching option
+`-o cache_prompt 1` will cache user prompt
+`-o cache_system 1` will cache system prompt
+
 ## Development
 
 To set up this plugin locally, first checkout the code. Then create a new virtual environment:
