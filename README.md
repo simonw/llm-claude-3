@@ -1,88 +1,53 @@
+# llm-claude-3
 
+[![PyPI](https://img.shields.io/pypi/v/llm-claude-3.svg)](https://pypi.org/project/llm-claude-3/)
+[![Changelog](https://img.shields.io/github/v/release/simonw/llm-claude-3?include_prereleases&label=changelog)](https://github.com/simonw/llm-claude-3/releases)
+[![Tests](https://github.com/simonw/llm-claude-3/actions/workflows/test.yml/badge.svg)](https://github.com/simonw/llm-claude-3/actions/workflows/test.yml)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/simonw/llm-claude-3/blob/main/LICENSE)
 
-LLM plugin providing access to Claude 3 models via the Anthropic API with prompt caching support.
+LLM access to Claude 3 by Anthropic
 
+## Installation
 
-
-Install this plugin in the same environment as [LLM](https://llm.datasette.io/):
-
+Install this plugin in the same environment as [LLM](https://llm.datasette.io/).
 ```bash
 llm install llm-claude-3
 ```
+## Usage
 
-
-
-You'll need an Anthropic API key. Obtain one from [https://console.anthropic.com](https://console.anthropic.com), then configure it like this:
-
+First, set [an API key](https://console.anthropic.com/settings/keys) for Claude 3:
 ```bash
-llm keys set anthropic
+llm keys set claude
+# Paste key here
 ```
 
+Run `llm models` to list the models, and `llm models --options` to include a list of their options.
 
-
-This plugin adds support for the following Claude 3 models:
-
-- claude-3-opus-20240229
-- claude-3-sonnet-20240229
-- claude-3-haiku-20240229
-
-To use them:
-
+Run prompts like this:
 ```bash
-llm -m claude-3-opus-20240229 "Your prompt here"
-llm -m claude-3-sonnet-20240229 "Another prompt"
-llm -m claude-3-haiku-20240229 "Yet another prompt"
+llm -m claude-3.5-sonnet 'Fun facts about pelicans'
+llm -m claude-3-opus 'Fun facts about squirrels'
+llm -m claude-3-sonnet 'Fun facts about walruses'
+llm -m claude-3-haiku 'Fun facts about armadillos'
 ```
 
+## New prompt caching option
+`-o cache_prompt 1` will cache user prompt
+`-o cache_system 1` will cache system prompt
 
+## Development
 
-This plugin now supports prompt caching to improve performance and reduce costs for repetitive tasks or prompts with large amounts of context. Use the following options:
-
-- `--system-cache`: Cache system instructions
-- `--prompt-cache`: Cache user prompt content
-- `--context-cache`: Cache additional context
-
-Example usage:
-
+To set up this plugin locally, first checkout the code. Then create a new virtual environment:
 ```bash
-llm -m claude-3-sonnet-20240229   --system-cache "You are an AI assistant specialized in analyzing literature."   --context-cache "Full text of Pride and Prejudice: ..."   --prompt-cache "Provide a brief summary of the major themes."   "What are the key relationships in the novel?"
-```
-
-Cached content has a 5-minute lifetime and is automatically refreshed when used.
-
-
-
-All Claude 3 models support the following options:
-
-- `-o temperature 0.7`: Controls randomness (0.0 to 1.0)
-- `-o top_p 0.9`: Nucleus sampling parameter (0.0 to 1.0)
-- `-o top_k 10`: Limits vocabulary to top K options
-- `-o max_tokens 250`: Maximum number of tokens to generate
-
-Example:
-
-```bash
-llm -m claude-3-sonnet-20240229 -o temperature 0.8 -o max_tokens 100 "Write a short poem"
-```
-
-
-
-To set up this plugin locally:
-
-```bash
-git clone https://github.com/your-username/llm-claude-3
 cd llm-claude-3
 python3 -m venv venv
 source venv/bin/activate
-pip install -e '.[test]'
 ```
-
+Now install the dependencies and test dependencies:
+```bash
+llm install -e '.[test]'
+```
 To run the tests:
-
 ```bash
 pytest
 ```
-
-
-
-Contributions are welcome! Please feel free to submit a Pull Request.
