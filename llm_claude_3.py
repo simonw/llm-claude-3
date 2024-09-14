@@ -43,12 +43,12 @@ class ClaudeOptions(llm.Options):
 
     cache_prompt: Optional[bool] = Field(
         description="Whether to cache the user prompt for future use",
-        default=False,
+        default=None,
     )
 
     cache_system: Optional[bool] = Field(
         description="Whether to cache the system prompt for future use",
-        default=False,
+        default=None,
     )
 
     @field_validator("max_tokens")
@@ -86,7 +86,6 @@ class ClaudeOptions(llm.Options):
             raise ValueError("Only one of temperature and top_p can be set")
         return self
 
-
 class ClaudeMessages(llm.Model):
     needs_key = "claude"
     key_env_var = "ANTHROPIC_API_KEY"
@@ -102,22 +101,31 @@ class ClaudeMessages(llm.Model):
     def build_messages(self, prompt, conversation) -> List[dict]:
         messages = []
         if conversation:
-            for response in conversation.responses:
-                messages.extend(
-                    [
-                        {
-                            "role": "user",
-                            "content": [
-                                {
-                                    "type": "text",
-                                    "text": response.prompt.prompt,
-                                    "cache_control": {"type": "ephemeral"} if prompt.options.cache_prompt else None
-                                }
-                            ],
-                        },
-                        {"role": "assistant", "content": response.text()},
-                    ]
-                )
+            user_turns_processed = 0
+            for response in reversed(conversation.responses):
+                if user_turns_processed < 2:
+                    messages.insert(0, {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": response.prompt.prompt,
+                                "cache_control": {"type": "ephemeral"} if prompt.options.cache_prompt is not False else None
+                            }
+                        ],
+                    })
+                    user_turns_processed += 1
+                else:
+                    messages.insert(0, {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": response.prompt.prompt,
+                            }
+                        ],
+                    })
+                messages.insert(1, {"role": "assistant", "content": response.text()})
         messages.append({
             "role": "user",
             "content": [
@@ -131,8 +139,7 @@ class ClaudeMessages(llm.Model):
         return messages
 
     def execute(self, prompt, stream, response, conversation):
-        client = Anthropic(api_key=self.get_key())
-
+        client = Anthropic(api_key=self.get_key(), default_headers={"anthropic-beta": "prompt-caching-2024-07-31"})
         kwargs = {
             "model": self.claude_model_id,
             "messages": self.build_messages(prompt, conversation),
@@ -158,12 +165,6 @@ class ClaudeMessages(llm.Model):
                 }
             ]
 
-        if self.extra_headers:
-            kwargs["extra_headers"] = self.extra_headers
-
-        kwargs["extra_headers"] = kwargs.get("extra_headers", {})
-        kwargs["extra_headers"]["anthropic-beta"] = "prompt-caching-2024-07-31"
-
         if stream:
             with client.messages.stream(**kwargs) as stream:
                 for text in stream.text_stream:
@@ -171,13 +172,12 @@ class ClaudeMessages(llm.Model):
                 # This records usage and other data:
                 response.response_json = stream.get_final_message().model_dump()
         else:
-            completion = client.messages.create(**kwargs)
+            completion = client.beta.prompt_caching.messages.create(**kwargs)
             yield completion.content[0].text
             response.response_json = completion.model_dump()
 
     def __str__(self):
         return f"Anthropic Messages: {self.model_id}"
-
 
 class ClaudeMessagesLong(ClaudeMessages):
     class Options(ClaudeOptions):
