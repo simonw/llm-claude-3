@@ -1,7 +1,8 @@
+import json
 from anthropic import Anthropic
 import llm
 from pydantic import Field, field_validator, model_validator
-from typing import Optional, List
+from typing import Optional, List, Union
 
 
 @llm.hookimpl
@@ -16,6 +17,14 @@ def register_models(register):
 
 
 class ClaudeOptions(llm.Options):
+    stop_sequences: Optional[Union[List[str], str]] = Field(
+        description="A list of sequences that, when generated, will cause the model to stop generating further tokens. Can be provided as a list of strings or a JSON-formatted string.",
+        default=None,
+    )
+    prefill: Optional[str] = Field(
+        description="Text to prefill the assistant's response. The model will continue from this text.",
+        default=None,
+    )
     max_tokens: Optional[int] = Field(
         description="The maximum number of tokens to generate before stopping",
         default=4_096,
@@ -40,6 +49,16 @@ class ClaudeOptions(llm.Options):
         description="An external identifier for the user who is associated with the request",
         default=None,
     )
+    
+    @field_validator("stop_sequences")
+    @classmethod
+    def validate_stop_sequences(cls, stop_sequences):
+        if isinstance(stop_sequences, str):
+            try:
+                return json.loads(stop_sequences)
+            except json.JSONDecodeError:
+                raise ValueError("stop_sequences must be a valid JSON string representing a list of strings")
+        return stop_sequences
 
     @field_validator("max_tokens")
     @classmethod
@@ -103,6 +122,11 @@ class ClaudeMessages(llm.Model):
                     ]
                 )
         messages.append({"role": "user", "content": prompt.prompt})
+        if prompt.options.prefill:
+            messages.append({
+                "role": "assistant",
+                "content": prompt.options.prefill
+            })
         return messages
 
     def execute(self, prompt, stream, response, conversation):
@@ -123,6 +147,9 @@ class ClaudeMessages(llm.Model):
 
         if prompt.options.top_k:
             kwargs["top_k"] = prompt.options.top_k
+        
+        if prompt.options.stop_sequences:
+            kwargs["stop_sequences"] = prompt.options.stop_sequences
 
         if prompt.system:
             kwargs["system"] = prompt.system
