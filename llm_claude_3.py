@@ -13,6 +13,9 @@ def register_models(register):
     register(
         ClaudeMessagesLong("claude-3-5-sonnet-20240620"), aliases=("claude-3.5-sonnet",)
     )
+    register(
+        ClaudeMessagesLong("claude-3-5-sonnet-20241022"), aliases=("claude-3.5-sonnet",)
+    )
 
 
 class ClaudeOptions(llm.Options):
