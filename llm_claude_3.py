@@ -7,12 +7,19 @@ from typing import Optional, List
 @llm.hookimpl
 def register_models(register):
     # https://docs.anthropic.com/claude/docs/models-overview
-    register(ClaudeMessages("claude-3-opus-20240229"), aliases=("claude-3-opus",))
+    register(ClaudeMessages("claude-3-opus-20240229"))
+    register(ClaudeMessages("claude-3-opus-latest"), aliases=("claude-3-opus",))
     register(ClaudeMessages("claude-3-sonnet-20240229"), aliases=("claude-3-sonnet",))
     register(ClaudeMessages("claude-3-haiku-20240307"), aliases=("claude-3-haiku",))
+    # 3.5 models
+    register(ClaudeMessagesLong("claude-3-5-sonnet-20240620"))
+    register(ClaudeMessagesLong("claude-3-5-sonnet-20241022"))
     register(
-        ClaudeMessagesLong("claude-3-5-sonnet-20240620"), aliases=("claude-3.5-sonnet",)
+        ClaudeMessagesLong("claude-3-5-sonnet-latest"), aliases=("claude-3.5-sonnet",)
     )
+    # register(
+    #     ClaudeMessagesLong("claude-3-5-haiku-latest"), aliases=("claude-3.5-haiku",)
+    # )
 
 
 class ClaudeOptions(llm.Options):
