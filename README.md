@@ -31,6 +31,53 @@ llm -m claude-3-sonnet 'Fun facts about walruses'
 llm -m claude-3-haiku 'Fun facts about armadillos'
 ```
 
+## New Features
+
+### Stop Sequences
+Control when the model stops generating text:
+
+```bash
+llm -m claude-3-opus -o stop_sequences '["END", "STOP"]' 'Write a story'
+```
+
+### Prefill
+Provide a starting point for the model to continue from:
+
+```bash
+llm -m claude-3-opus -o prefill "It was a dark and stormy night" 'Continue the story'
+```
+
+## Usage Examples
+
+Get creative with Claude 3 models:
+
+1. Basic prompt:
+   ```bash
+   llm -m claude-3-haiku 'Haiku about spring'
+   ```
+
+2. Using stop sequences:
+   ```bash
+   llm -m claude-3-sonnet -o stop_sequences '["THE END"]' 'Short mystery story'
+   ```
+
+3. With prefill:
+   ```bash
+   llm -m claude-3-opus -o prefill "In the year 2050" 'Describe the future'
+   ```
+
+4. Combining options:
+   ```bash
+   llm -m claude-3.5-sonnet -o stop_sequences '["DONE"]' -o prefill "Recipe for happiness:" 'Complete the recipe'
+   ```
+
+Explore all available options:
+```bash
+llm models --options
+```
+
+Remember to check the [Anthropic documentation](https://docs.anthropic.com) for detailed information on Claude 3 capabilities and best practices.
+
 ## Development
 
 To set up this plugin locally, first checkout the code. Then create a new virtual environment:
