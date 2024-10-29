@@ -42,7 +42,7 @@ llm -m claude-3-haiku 'Fun facts about armadillos'
 Images are supported too:
 ```bash
 llm -m claude-3.5-sonnet 'describe this image' -a https://static.simonwillison.net/static/2024/pelicans.jpg
-llm -m claude-3-haiku 'extract text' page.png
+llm -m claude-3-haiku 'extract text' -a page.png
 ```
 
 ## Development
