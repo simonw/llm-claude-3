@@ -15,7 +15,8 @@ def register_models(register):
     register(ClaudeMessagesLong("claude-3-5-sonnet-20240620"))
     register(ClaudeMessagesLong("claude-3-5-sonnet-20241022"))
     register(
-        ClaudeMessagesLong("claude-3-5-sonnet-latest"), aliases=("claude-3.5-sonnet", "claude-3.5-sonnet-latest")
+        ClaudeMessagesLong("claude-3-5-sonnet-latest"),
+        aliases=("claude-3.5-sonnet", "claude-3.5-sonnet-latest"),
     )
     # register(
     #     ClaudeMessagesLong("claude-3-5-haiku-latest"), aliases=("claude-3.5-haiku",)
@@ -88,6 +89,12 @@ class ClaudeMessages(llm.Model):
     needs_key = "claude"
     key_env_var = "ANTHROPIC_API_KEY"
     can_stream = True
+    attachment_types = {
+        "image/png",
+        "image/jpeg",
+        "image/webp",
+        "image/gif",
+    }
 
     class Options(ClaudeOptions): ...
 
@@ -100,16 +107,48 @@ class ClaudeMessages(llm.Model):
         messages = []
         if conversation:
             for response in conversation.responses:
+                if response.attachments:
+                    content = [
+                        {
+                            "type": "image",
+                            "source": {
+                                "data": attachment.base64_content(),
+                                "media_type": attachment.resolve_type(),
+                                "type": "base64",
+                            },
+                        }
+                        for attachment in response.attachments
+                    ]
+                else:
+                    content = response.prompt.prompt
                 messages.extend(
                     [
                         {
                             "role": "user",
-                            "content": response.prompt.prompt,
+                            "content": content,
                         },
                         {"role": "assistant", "content": response.text()},
                     ]
                 )
-        messages.append({"role": "user", "content": prompt.prompt})
+        if prompt.attachments:
+            messages.append(
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image",
+                            "source": {
+                                "data": attachment.base64_content(),
+                                "media_type": attachment.resolve_type(),
+                                "type": "base64",
+                            },
+                        }
+                        for attachment in prompt.attachments
+                    ],
+                }
+            )
+        else:
+            messages.append({"role": "user", "content": prompt.prompt})
         return messages
 
     def execute(self, prompt, stream, response, conversation):

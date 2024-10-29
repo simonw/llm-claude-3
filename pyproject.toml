@@ -9,8 +9,8 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License"
 ]
 dependencies = [
-    "llm",
-    "anthropic>=0.17.0",
+    "llm>=0.17a0",
+    "anthropic>=0.37.1",
 ]
 
 [project.urls]
