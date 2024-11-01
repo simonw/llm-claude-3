@@ -43,10 +43,7 @@ EXPECTED_IMAGE_TEXT = (
 @pytest.mark.vcr
 def test_image_prompt():
     model = llm.get_model("claude-3.5-sonnet")
-    model.key = (
-        model.key
-        or "sk-..."
-    )
+    model.key = model.key or "sk-..."
     response = model.prompt(
         "Describe image in three words",
         attachments=[llm.Attachment(content=TINY_PNG)],

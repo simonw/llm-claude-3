@@ -13,9 +13,9 @@ def register_models(register):
     register(ClaudeMessages("claude-3-haiku-20240307"), aliases=("claude-3-haiku",))
     # 3.5 models
     register(ClaudeMessagesLong("claude-3-5-sonnet-20240620"))
-    register(ClaudeMessagesLong("claude-3-5-sonnet-20241022"))
+    register(ClaudeMessagesLong("claude-3-5-sonnet-20241022", supports_pdf=True)),
     register(
-        ClaudeMessagesLong("claude-3-5-sonnet-latest"),
+        ClaudeMessagesLong("claude-3-5-sonnet-latest", supports_pdf=True),
         aliases=("claude-3.5-sonnet", "claude-3.5-sonnet-latest"),
     )
     # register(
@@ -89,19 +89,25 @@ class ClaudeMessages(llm.Model):
     needs_key = "claude"
     key_env_var = "ANTHROPIC_API_KEY"
     can_stream = True
-    attachment_types = {
-        "image/png",
-        "image/jpeg",
-        "image/webp",
-        "image/gif",
-    }
 
     class Options(ClaudeOptions): ...
 
-    def __init__(self, model_id, claude_model_id=None, extra_headers=None):
+    def __init__(
+        self, model_id, claude_model_id=None, extra_headers=None, supports_pdf=False
+    ):
         self.model_id = model_id
         self.claude_model_id = claude_model_id or model_id
-        self.extra_headers = extra_headers
+        self.extra_headers = extra_headers or {}
+        if supports_pdf:
+            self.extra_headers["anthropic-beta"] = "pdfs-2024-09-25"
+        self.attachment_types = {
+            "image/png",
+            "image/jpeg",
+            "image/webp",
+            "image/gif",
+        }
+        if supports_pdf:
+            self.attachment_types.add("application/pdf")
 
     def build_messages(self, prompt, conversation) -> List[dict]:
         messages = []
@@ -110,7 +116,11 @@ class ClaudeMessages(llm.Model):
                 if response.attachments:
                     content = [
                         {
-                            "type": "image",
+                            "type": (
+                                "document"
+                                if attachment.resolve_type() == "application/pdf"
+                                else "image"
+                            ),
                             "source": {
                                 "data": attachment.base64_content(),
                                 "media_type": attachment.resolve_type(),
@@ -136,7 +146,11 @@ class ClaudeMessages(llm.Model):
                     "role": "user",
                     "content": [
                         {
-                            "type": "image",
+                            "type": (
+                                "document"
+                                if attachment.resolve_type() == "application/pdf"
+                                else "image"
+                            ),
                             "source": {
                                 "data": attachment.base64_content(),
                                 "media_type": attachment.resolve_type(),
