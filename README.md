@@ -17,7 +17,7 @@ llm install llm-claude-3
 The plugin may fail to install on **Python 3.13** due to a dependency problem. A temporary workaround for that problem is to run this:
 
 ```bash
-llm install https://github.com/simonw/anthropic-sdk-python/archive/9c13bb441ee4eb88a100ed363fc431ec8fd30c43.zip
+llm install https://github.com/simonw/anthropic-sdk-python/archive/a6f35b4554b265d5e08c2bbe308dba65d1078cf5.zip
 llm install llm-claude-3
 ```
 See [this issue](https://github.com/simonw/llm-claude-3/issues/16) for further details.
