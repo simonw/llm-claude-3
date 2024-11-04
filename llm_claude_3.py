@@ -18,9 +18,10 @@ def register_models(register):
         ClaudeMessagesLong("claude-3-5-sonnet-latest", supports_pdf=True),
         aliases=("claude-3.5-sonnet", "claude-3.5-sonnet-latest"),
     )
-    # register(
-    #     ClaudeMessagesLong("claude-3-5-haiku-latest"), aliases=("claude-3.5-haiku",)
-    # )
+    register(
+        ClaudeMessagesLong("claude-3-5-haiku-latest", supports_images=False),
+        aliases=("claude-3.5-haiku",),
+    )
 
 
 class ClaudeOptions(llm.Options):
@@ -93,19 +94,28 @@ class ClaudeMessages(llm.Model):
     class Options(ClaudeOptions): ...
 
     def __init__(
-        self, model_id, claude_model_id=None, extra_headers=None, supports_pdf=False
+        self,
+        model_id,
+        claude_model_id=None,
+        extra_headers=None,
+        supports_images=True,
+        supports_pdf=False,
     ):
         self.model_id = model_id
         self.claude_model_id = claude_model_id or model_id
         self.extra_headers = extra_headers or {}
         if supports_pdf:
             self.extra_headers["anthropic-beta"] = "pdfs-2024-09-25"
-        self.attachment_types = {
-            "image/png",
-            "image/jpeg",
-            "image/webp",
-            "image/gif",
-        }
+        self.attachment_types = set()
+        if supports_images:
+            self.attachment_types.update(
+                {
+                    "image/png",
+                    "image/jpeg",
+                    "image/webp",
+                    "image/gif",
+                }
+            )
         if supports_pdf:
             self.attachment_types.add("application/pdf")
 

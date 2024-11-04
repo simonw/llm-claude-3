@@ -35,9 +35,8 @@ Run `llm models` to list the models, and `llm models --options` to include a lis
 Run prompts like this:
 ```bash
 llm -m claude-3.5-sonnet 'Fun facts about pelicans'
+llm -m claude-3.5-haiku 'Fun facts about armadillos'
 llm -m claude-3-opus 'Fun facts about squirrels'
-llm -m claude-3-sonnet 'Fun facts about walruses'
-llm -m claude-3-haiku 'Fun facts about armadillos'
 ```
 Images are supported too:
 ```bash
