@@ -139,6 +139,7 @@ class ClaudeMessages(llm.Model):
                         }
                         for attachment in response.attachments
                     ]
+                    content.append({"type": "text", "text": response.prompt.prompt})
                 else:
                     content = response.prompt.prompt
                 messages.extend(
@@ -151,24 +152,26 @@ class ClaudeMessages(llm.Model):
                     ]
                 )
         if prompt.attachments:
+            content = [
+                {
+                    "type": (
+                        "document"
+                        if attachment.resolve_type() == "application/pdf"
+                        else "image"
+                    ),
+                    "source": {
+                        "data": attachment.base64_content(),
+                        "media_type": attachment.resolve_type(),
+                        "type": "base64",
+                    },
+                }
+                for attachment in prompt.attachments
+            ]
+            content.append({"type": "text", "text": prompt.prompt})
             messages.append(
                 {
                     "role": "user",
-                    "content": [
-                        {
-                            "type": (
-                                "document"
-                                if attachment.resolve_type() == "application/pdf"
-                                else "image"
-                            ),
-                            "source": {
-                                "data": attachment.base64_content(),
-                                "media_type": attachment.resolve_type(),
-                                "type": "base64",
-                            },
-                        }
-                        for attachment in prompt.attachments
-                    ],
+                    "content": content,
                 }
             )
         else:
