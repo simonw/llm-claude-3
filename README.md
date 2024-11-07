@@ -22,6 +22,8 @@ llm keys set claude
 # Paste key here
 ```
 
+You can also set the key in the environment variable `ANTHROPIC_API_KEY`
+
 Run `llm models` to list the models, and `llm models --options` to include a list of their options.
 
 Run prompts like this:
