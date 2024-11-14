@@ -52,3 +52,15 @@ To run the tests:
 ```bash
 pytest
 ```
+
+This project uses [pytest-recording](https://github.com/kiwicom/pytest-recording) to record Anthropic API responses for the tests.
+
+If you add a new test that calls the API you can capture the API response like this:
+```bash
+PYTEST_ANTHROPIC_API_KEY="$(llm keys get claude)" pytest --record-mode once
+```
+You will need to have stored a valid Anthropic API key using this command first:
+```bash
+llm keys set claude
+# Paste key here
+```
