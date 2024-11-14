@@ -1,4 +1,5 @@
 import llm
+import os
 import pytest
 
 TINY_PNG = (
@@ -11,13 +12,35 @@ TINY_PNG = (
     b"\x82"
 )
 
+ANTHROPIC_API_KEY = os.environ.get("PYTEST_ANTHROPIC_API_KEY", None) or "sk-..."
+
 
 @pytest.mark.vcr
 def test_prompt():
     model = llm.get_model("claude-3-opus")
-    model.key = model.key or "sk-..."  # don't override existing key
+    model.key = model.key or ANTHROPIC_API_KEY
     response = model.prompt("Two names for a pet pelican, be brief")
     assert str(response) == "1. Pelly\n2. Beaky"
+    response_dict = dict(response.response_json)
+    response_dict.pop("id")  # differs between requests
+    assert response_dict == {
+        "content": [{"text": "1. Pelly\n2. Beaky", "type": "text"}],
+        "model": "claude-3-opus-20240229",
+        "role": "assistant",
+        "stop_reason": "end_turn",
+        "stop_sequence": None,
+        "type": "message",
+        "usage": {"input_tokens": 17, "output_tokens": 15},
+    }
+
+
+@pytest.mark.vcr
+@pytest.mark.asyncio
+async def test_async_prompt():
+    model = llm.get_async_model("claude-3-opus")
+    model.key = model.key or ANTHROPIC_API_KEY  # don't override existing key
+    response = await model.prompt("Two names for a pet pelican, be brief")
+    assert await response.text() == "1. Pelly\n2. Beaky"
     response_dict = dict(response.response_json)
     response_dict.pop("id")  # differs between requests
     assert response_dict == {
@@ -43,7 +66,7 @@ EXPECTED_IMAGE_TEXT = (
 @pytest.mark.vcr
 def test_image_prompt():
     model = llm.get_model("claude-3.5-sonnet")
-    model.key = model.key or "sk-..."
+    model.key = model.key or ANTHROPIC_API_KEY
     response = model.prompt(
         "Describe image in three words",
         attachments=[llm.Attachment(content=TINY_PNG)],
