@@ -34,6 +34,26 @@ def test_prompt():
     }
 
 
+@pytest.mark.vcr
+@pytest.mark.asyncio
+async def test_async_prompt():
+    model = llm.get_async_model("claude-3-opus")
+    model.key = model.key or ANTHROPIC_API_KEY  # don't override existing key
+    response = await model.prompt("Two names for a pet pelican, be brief")
+    assert await response.text() == "1. Pelly\n2. Beaky"
+    response_dict = dict(response.response_json)
+    response_dict.pop("id")  # differs between requests
+    assert response_dict == {
+        "content": [{"text": "1. Pelly\n2. Beaky", "type": "text"}],
+        "model": "claude-3-opus-20240229",
+        "role": "assistant",
+        "stop_reason": "end_turn",
+        "stop_sequence": None,
+        "type": "message",
+        "usage": {"input_tokens": 17, "output_tokens": 15},
+    }
+
+
 EXPECTED_IMAGE_TEXT = (
     "This image shows two simple rectangular blocks of solid colors stacked "
     "vertically. The top rectangle is a bright, vibrant red color, while the "
