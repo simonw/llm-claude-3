@@ -37,7 +37,15 @@ Images are supported too:
 llm -m claude-3.5-sonnet 'describe this image' -a https://static.simonwillison.net/static/2024/pelicans.jpg
 llm -m claude-3-haiku 'extract text' -a page.png
 ```
-
+Prefill assistant response:
+```bash
+llm -m claude-3-opus "Extract name and price from: $description" -o prefill "{"
+```
+```json
+“name”: “SmartHome Mini”,
+“price”: “$49.99”
+}
+```
 ## Development
 
 To set up this plugin locally, first checkout the code. Then create a new virtual environment:

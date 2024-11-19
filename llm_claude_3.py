@@ -48,6 +48,11 @@ def register_models(register):
 
 
 class ClaudeOptions(llm.Options):
+    prefill: Optional[str] = Field(
+        description="Text to prefill the assistant's response. The model will continue from this text.",
+        default=None,
+    )
+
     max_tokens: Optional[int] = Field(
         description="The maximum number of tokens to generate before stopping",
         default=4_096,
@@ -205,6 +210,11 @@ class _Shared:
             )
         else:
             messages.append({"role": "user", "content": prompt.prompt})
+        if prompt.options.prefill:
+            messages.append({
+                "role": "assistant",
+                "content": prompt.options.prefill
+            })
         return messages
 
     def build_kwargs(self, prompt, conversation):

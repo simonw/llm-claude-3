@@ -35,6 +35,15 @@ def test_prompt():
 
 
 @pytest.mark.vcr
+def test_prefill():
+    model = llm.get_model("claude-3-opus")
+    model.key = model.key or ANTHROPIC_API_KEY
+    response = model.prompt("Two names for a pet pelican, be brief", prefill="{")
+    # assert "}" in response:
+    assert "}" in str(response)
+        
+    
+@pytest.mark.vcr
 @pytest.mark.asyncio
 async def test_async_prompt():
     model = llm.get_async_model("claude-3-opus")
