@@ -37,6 +37,22 @@ Images are supported too:
 llm -m claude-3.5-sonnet 'describe this image' -a https://static.simonwillison.net/static/2024/pelicans.jpg
 llm -m claude-3-haiku 'extract text' -a page.png
 ```
+Prefill assistant response:
+```bash
+llm -m claude-3-opus "Extract name and price from: $description" -o prefill "{"
+```
+```json
+“name”: “SmartHome Mini”,
+“price”: “$49.99”
+}
+```
+Stop Sequences (comma separated list):
+```bash
+llm -m claude-3-opus "List files sorted by modification time (be brief)" -o prefill "<code>" -o stop_sequences "</code>"
+```
+```
+ls -lt
+```
 
 ## Development
 
