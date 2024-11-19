@@ -16,6 +16,67 @@ ANTHROPIC_API_KEY = os.environ.get("PYTEST_ANTHROPIC_API_KEY", None) or "sk-..."
 
 
 @pytest.mark.vcr
+def test_prefill():
+    model = llm.get_model("claude-3-opus")
+    model.key = model.key or ANTHROPIC_API_KEY
+    response = model.prompt("Two names for a pet pelican, be brief", prefill="{")
+    # assert "}" in response:
+    assert "}" in str(response)
+        
+@pytest.mark.vcr
+@pytest.mark.asyncio
+async def test_async_prefill():
+    model = llm.get_async_model("claude-3-opus")
+    model.key = model.key or ANTHROPIC_API_KEY
+    response = await model.prompt("Two names for a pet pelican, be brief", prefill="{")
+    # assert  "}" in await response:
+    assert "}" in await response.text()  
+    
+    
+@pytest.mark.vcr
+def test_stop_sequence():
+    model = llm.get_model("claude-3-opus")
+    model.key = model.key or ANTHROPIC_API_KEY
+    response = model.prompt(
+        "List files sorted by modification time (be brief)", prefill="<code>",
+        stop_sequences=["</code>"]
+    )
+    assert "ls -lt" in str(response)
+    response_dict = dict(response.response_json)
+    response_dict.pop("id")
+    response_dict.pop("content")
+    response_dict.pop("usage")
+    assert response_dict == {
+        "model": "claude-3-opus-20240229",
+        "role": "assistant",
+        "stop_reason": "stop_sequence",
+        "stop_sequence": "</code>",
+        "type": "message",
+    }
+
+@pytest.mark.vcr
+@pytest.mark.asyncio
+async def test_async_stop_sequence():
+    model = llm.get_async_model("claude-3-opus")
+    model.key = model.key or ANTHROPIC_API_KEY
+    response = await model.prompt(
+        "List files sorted by modification time (be brief)", prefill="<code>",
+        stop_sequences=["</code>"]
+    )
+    assert "ls -lt" in await response.text()
+    response_dict = dict(response.response_json)
+    response_dict.pop("id")
+    response_dict.pop("content")
+    response_dict.pop("usage")
+    assert response_dict == {
+        "model": "claude-3-opus-20240229",
+        "role": "assistant",
+        "stop_reason": "stop_sequence",
+        "stop_sequence": "</code>",
+        "type": "message",
+    }
+
+@pytest.mark.vcr
 def test_prompt():
     model = llm.get_model("claude-3-opus")
     model.key = model.key or ANTHROPIC_API_KEY
@@ -32,16 +93,6 @@ def test_prompt():
         "type": "message",
         "usage": {"input_tokens": 17, "output_tokens": 15},
     }
-
-
-@pytest.mark.vcr
-def test_prefill():
-    model = llm.get_model("claude-3-opus")
-    model.key = model.key or ANTHROPIC_API_KEY
-    response = model.prompt("Two names for a pet pelican, be brief", prefill="{")
-    # assert "}" in response:
-    assert "}" in str(response)
-        
     
 @pytest.mark.vcr
 @pytest.mark.asyncio

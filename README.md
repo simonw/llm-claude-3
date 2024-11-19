@@ -46,6 +46,14 @@ llm -m claude-3-opus "Extract name and price from: $description" -o prefill "{"
 “price”: “$49.99”
 }
 ```
+Stop Sequences (comma separated list):
+```bash
+llm -m claude-3-opus "List files sorted by modification time (be brief)" -o prefill "<code>" -o stop_sequences "</code>"
+```
+```
+ls -lt
+```
+
 ## Development
 
 To set up this plugin locally, first checkout the code. Then create a new virtual environment:

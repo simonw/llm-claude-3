@@ -1,7 +1,7 @@
 from anthropic import Anthropic, AsyncAnthropic
 import llm
 from pydantic import Field, field_validator, model_validator
-from typing import Optional, List
+from typing import Optional, List, Union
 
 
 @llm.hookimpl
@@ -52,6 +52,11 @@ class ClaudeOptions(llm.Options):
         description="Text to prefill the assistant's response. The model will continue from this text.",
         default=None,
     )
+    
+    stop_sequences: Optional[List[str]] = Field(
+        description="A comma-separated list of sequences that will cause the model to stop generating further tokens.",
+        default=None,
+    )
 
     max_tokens: Optional[int] = Field(
         description="The maximum number of tokens to generate before stopping",
@@ -77,6 +82,13 @@ class ClaudeOptions(llm.Options):
         description="An external identifier for the user who is associated with the request",
         default=None,
     )
+    
+    @field_validator("stop_sequences", mode="before")
+    @classmethod
+    def split_stop_sequences(cls, v):
+        if isinstance(v, str):
+            return [seq.strip() for seq in v.split(',')]
+        return v      
 
     @field_validator("max_tokens")
     @classmethod
@@ -239,6 +251,9 @@ class _Shared:
 
         if self.extra_headers:
             kwargs["extra_headers"] = self.extra_headers
+        
+        if prompt.options.stop_sequences:
+            kwargs["stop_sequences"] = prompt.options.stop_sequences
         return kwargs
 
     def __str__(self):
