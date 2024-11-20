@@ -10,9 +10,8 @@ def register_models(register):
     register(ClaudeMessages("claude-3-opus-20240229"), aliases=("claude-3-opus",))
     register(ClaudeMessages("claude-3-sonnet-20240229"), aliases=("claude-3-sonnet",))
     register(ClaudeMessages("claude-3-haiku-20240307"), aliases=("claude-3-haiku",))
-    register(
-        ClaudeMessagesLong("claude-3-5-sonnet-20240620"), aliases=("claude-3.5-sonnet",)
-    )
+    register(ClaudeMessagesLong("claude-3-5-sonnet-20240620"), aliases=("claude-3.5-sonnet",))
+    register(ClaudeMessagesLong("claude-3-5-haiku-latest"), aliases=("claude-3.5-haiku",))
 
 
 class ClaudeOptions(llm.Options):
@@ -100,42 +99,42 @@ class ClaudeMessages(llm.Model):
 
     def build_messages(self, prompt, conversation) -> List[dict]:
         messages = []
+        cache_control_count = 0
+        max_cache_control_blocks = 2  # Leave one for the current prompt and system prompt
+
         if conversation:
-            user_turns_processed = 0
             for response in reversed(conversation.responses):
-                if user_turns_processed < 2:
-                    messages.insert(0, {
-                        "role": "user",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": response.prompt.prompt,
-                                "cache_control": {"type": "ephemeral"} if prompt.options.cache_prompt is not False else None
-                            }
-                        ],
-                    })
-                    user_turns_processed += 1
-                else:
-                    messages.insert(0, {
-                        "role": "user",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": response.prompt.prompt,
-                            }
-                        ],
-                    })
+                user_message = {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": response.prompt.prompt,
+                        }
+                    ],
+                }
+                
+                if prompt.options.cache_prompt is not False and cache_control_count < max_cache_control_blocks:
+                    user_message["content"][0]["cache_control"] = {"type": "ephemeral"}
+                    cache_control_count += 1
+
+                messages.insert(0, user_message)
                 messages.insert(1, {"role": "assistant", "content": response.text()})
-        messages.append({
+
+        current_prompt = {
             "role": "user",
             "content": [
                 {
                     "type": "text",
                     "text": prompt.prompt,
-                    "cache_control": {"type": "ephemeral"} if prompt.options.cache_prompt else None
                 }
             ]
-        })
+        }
+
+        if prompt.options.cache_prompt:
+            current_prompt["content"][0]["cache_control"] = {"type": "ephemeral"}
+
+        messages.append(current_prompt)
         return messages
 
     def execute(self, prompt, stream, response, conversation):
