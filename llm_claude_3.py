@@ -231,6 +231,13 @@ class _Shared:
             kwargs["extra_headers"] = self.extra_headers
         return kwargs
 
+    def set_usage(self, response):
+        usage = response.response_json.pop("usage")
+        if usage:
+            response.set_usage(
+                input=usage.get("input_tokens"), output=usage.get("output_tokens")
+            )
+
     def __str__(self):
         return "Anthropic Messages: {}".format(self.model_id)
 
@@ -250,6 +257,7 @@ class ClaudeMessages(_Shared, llm.Model):
             completion = client.messages.create(**kwargs)
             yield completion.content[0].text
             response.response_json = completion.model_dump()
+        self.set_usage(response)
 
 
 class ClaudeMessagesLong(ClaudeMessages):
@@ -270,6 +278,7 @@ class AsyncClaudeMessages(_Shared, llm.AsyncModel):
             completion = await client.messages.create(**kwargs)
             yield completion.content[0].text
             response.response_json = completion.model_dump()
+        self.set_usage(response)
 
 
 class AsyncClaudeMessagesLong(AsyncClaudeMessages):

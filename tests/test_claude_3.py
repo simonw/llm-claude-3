@@ -30,8 +30,10 @@ def test_prompt():
         "stop_reason": "end_turn",
         "stop_sequence": None,
         "type": "message",
-        "usage": {"input_tokens": 17, "output_tokens": 15},
     }
+    assert response.input_tokens == 17
+    assert response.output_tokens == 15
+    assert response.token_details is None
 
 
 @pytest.mark.vcr
@@ -50,8 +52,10 @@ async def test_async_prompt():
         "stop_reason": "end_turn",
         "stop_sequence": None,
         "type": "message",
-        "usage": {"input_tokens": 17, "output_tokens": 15},
     }
+    assert response.input_tokens == 17
+    assert response.output_tokens == 15
+    assert response.token_details is None
 
 
 EXPECTED_IMAGE_TEXT = (
@@ -86,5 +90,7 @@ def test_image_prompt():
         "stop_reason": "end_turn",
         "stop_sequence": None,
         "type": "message",
-        "usage": {"input_tokens": 76, "output_tokens": 75},
     }
+    assert response.input_tokens == 76
+    assert response.output_tokens == 75
+    assert response.token_details is None
