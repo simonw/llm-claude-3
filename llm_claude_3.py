@@ -12,6 +12,10 @@ def register_models(register):
     register(ClaudeMessages("claude-3-haiku-20240307"), aliases=("claude-3-haiku",))
     register(ClaudeMessagesLong("claude-3-5-sonnet-20240620"), aliases=("claude-3.5-sonnet",))
     register(ClaudeMessagesLong("claude-3-5-haiku-latest"), aliases=("claude-3.5-haiku",))
+    # claude-3-5-sonnet-20241022
+    register(ClaudeMessagesLong("claude-3-5-sonnet-20241022"), aliases=("claude-3.5-sonnet","new-sonnet",))
+    # claude-3-5-haiku-latest
+    register(ClaudeMessagesLong("claude-3-5-haiku-latest"), aliases=("claude-3.5-haiku",))
 
 
 class ClaudeOptions(llm.Options):
