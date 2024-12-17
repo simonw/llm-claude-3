@@ -28,8 +28,8 @@ def register_models(register):
     )
     # 3.5 models
     register(
-        ClaudeMessagesLong("claude-3-5-sonnet-20240620"),
-        AsyncClaudeMessagesLong("claude-3-5-sonnet-20240620"),
+        ClaudeMessagesLong("claude-3-5-sonnet-20240620", supports_pdf=True),
+        AsyncClaudeMessagesLong("claude-3-5-sonnet-20240620", supports_pdf=True),
     )
     register(
         ClaudeMessagesLong("claude-3-5-sonnet-20241022", supports_pdf=True),
