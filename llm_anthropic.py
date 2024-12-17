@@ -126,15 +126,11 @@ class _Shared:
         self,
         model_id,
         claude_model_id=None,
-        extra_headers=None,
         supports_images=True,
         supports_pdf=False,
     ):
-        self.model_id = model_id
+        self.model_id = 'anthropic/' + model_id
         self.claude_model_id = claude_model_id or model_id
-        self.extra_headers = extra_headers or {}
-        if supports_pdf:
-            self.extra_headers["anthropic-beta"] = "pdfs-2024-09-25"
         self.attachment_types = set()
         if supports_images:
             self.attachment_types.update(
@@ -227,8 +223,6 @@ class _Shared:
         if prompt.system:
             kwargs["system"] = prompt.system
 
-        if self.extra_headers:
-            kwargs["extra_headers"] = self.extra_headers
         return kwargs
 
     def set_usage(self, response):
