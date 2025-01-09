@@ -7,15 +7,15 @@ from typing import Optional, List
 @llm.hookimpl
 def register_models(register):
     # https://docs.anthropic.com/claude/docs/models-overview
-    register(ClaudeMessages("claude-3-opus-20240229"), aliases=("claude-3-opus",))
-    register(ClaudeMessages("claude-3-sonnet-20240229"), aliases=("claude-3-sonnet",))
-    register(ClaudeMessages("claude-3-haiku-20240307"), aliases=("claude-3-haiku",))
-    register(ClaudeMessagesLong("claude-3-5-sonnet-20240620"), aliases=("claude-3.5-sonnet",))
-    register(ClaudeMessagesLong("claude-3-5-haiku-latest"), aliases=("claude-3.5-haiku",))
+    register(ClaudeMessages("claude-3-opus-20240229"), aliases=("claude-3-opus-cache",))
+    register(ClaudeMessages("claude-3-sonnet-20240229"), aliases=("claude-3-sonnet-cache",))
+    register(ClaudeMessages("claude-3-haiku-20240307"), aliases=("claude-3-haiku-cache",))
+    register(ClaudeMessagesLong("claude-3-5-sonnet-20240620"), aliases=("claude-3.5-sonnet-cache",))
+    register(ClaudeMessagesLong("claude-3-5-haiku-latest"), aliases=("claude-3.5-haiku-cache",))
     # claude-3-5-sonnet-20241022
-    register(ClaudeMessagesLong("claude-3-5-sonnet-20241022"), aliases=("claude-3.5-sonnet","new-sonnet",))
+    register(ClaudeMessagesLong("claude-3-5-sonnet-20241022"), aliases=("claude-3.5-sonnet","new-sonnet-cache",))
     # claude-3-5-haiku-latest
-    register(ClaudeMessagesLong("claude-3-5-haiku-latest"), aliases=("claude-3.5-haiku",))
+    register(ClaudeMessagesLong("claude-3-5-haiku-latest"), aliases=("claude-3.5-haiku-cache",))
 
 
 class ClaudeOptions(llm.Options):
@@ -175,7 +175,7 @@ class ClaudeMessages(llm.Model):
                 # This records usage and other data:
                 response.response_json = stream.get_final_message().model_dump()
         else:
-            completion = client.beta.prompt_caching.messages.create(**kwargs)
+            completion = client.messages.create(**kwargs)
             yield completion.content[0].text
             response.response_json = completion.model_dump()
 

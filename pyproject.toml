@@ -1,5 +1,5 @@
 [project]
-name = "llm-claude-3"
+name = "llm-claude-caching"
 version = "0.4.1"
 description = "LLM access to Claude 3 by Anthropic"
 readme = "README.md"
@@ -20,7 +20,7 @@ Issues = "https://github.com/simonw/llm-claude-3/issues"
 CI = "https://github.com/simonw/llm-claude-3/actions"
 
 [project.entry-points.llm]
-claude_3 = "llm_claude_3"
+claude_3_cache = "llm_claude_3_cache"
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-recording"]
