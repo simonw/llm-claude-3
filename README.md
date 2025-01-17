@@ -11,7 +11,9 @@ LLM access to Claude 3 by Anthropic
 
 Install this plugin in the same environment as [LLM](https://llm.datasette.io/).
 ```bash
-llm install llm-claude-3
+git clone -b prompt-caching https://github.com/irthomasthomas/llm-claude-3-caching.git
+cd llm-claude-3-caching
+llm install -e .
 ```
 ## Usage
 
