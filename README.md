@@ -1,11 +1,11 @@
-# llm-claude-3
+# llm-claude-3-caching
 
 [![PyPI](https://img.shields.io/pypi/v/llm-claude-3.svg)](https://pypi.org/project/llm-claude-3/)
 [![Changelog](https://img.shields.io/github/v/release/simonw/llm-claude-3?include_prereleases&label=changelog)](https://github.com/simonw/llm-claude-3/releases)
 [![Tests](https://github.com/simonw/llm-claude-3/actions/workflows/test.yml/badge.svg)](https://github.com/simonw/llm-claude-3/actions/workflows/test.yml)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/simonw/llm-claude-3/blob/main/LICENSE)
 
-LLM access to Claude 3 by Anthropic
+A version of the llm-claude-3 plugin that supports caching. Forked from an older version, this branch does not support images or attachements.
 
 ## Installation
 
@@ -80,6 +80,7 @@ llm -c # continues from cached prompt, if available
 Prompt Caching is currently supported on:
 
 - Claude 3.5 Sonnet
+- claude 3.5 Haiku
 - Claude 3 Haiku
 - Claude 3 Opus
 
